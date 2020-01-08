@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  gcq_rmq-up-env:
+    # Change 1 : Use newly created image
+    image: ngcq-rmq:up-env
+    container_name: rmq-gcqng-up-env
+    tty: true
+    expose: 
+      - "15672"
+      - "5672"
+    ports:
+      - "29674:15672"
+      - "9674:5672"
+    # Change 2: Just Add Usernames U1, U2  and Password P1, P2
+    environment:
+      - U1=kamal # gc
+      - P1=kamal # FuckClement123
+      - U2=derek # jabba
+      - P2=derek # Jabba@GC798!
+    networks:
+      - prism_nw
+
+networks:
+  prism_nw:
+    driver: bridge

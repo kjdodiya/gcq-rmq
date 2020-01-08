@@ -1,0 +1,18 @@
+FROM ubuntu:18.04
+
+COPY rabbitmq-release-signing-key.asc .
+
+# install ubuntu packages
+RUN apt-get update && \
+apt-get install -y --no-install-recommends erlang gnupg && \
+apt-key add rabbitmq-release-signing-key.asc && \
+echo "deb https://dl.bintray.com/rabbitmq/debian xenial main" > /etc/apt/sources.list.d/bintray.rabbitmq.list && \
+apt-get install -y --no-install-recommends build-essential gcc-multilib rabbitmq-server
+
+# Rabbitmq server stuff
+COPY ./rmq-entrypoint.sh /
+RUN chmod +x /rmq-entrypoint.sh
+
+ENTRYPOINT [ "/rmq-entrypoint.sh" ]
+
+CMD ["/bin/bash"]
