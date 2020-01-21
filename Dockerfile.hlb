@@ -1,0 +1,38 @@
+FROM ubuntu:18.04 as base
+
+WORKDIR /deps
+
+# Copy required files and libs
+COPY gcq-deps/ta-lib-0.4.0-src.tar.gz .
+
+RUN tar -xvf /deps/ta-lib-0.4.0-src.tar.gz
+
+WORKDIR ta-lib
+# install ubuntu packages
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends python3-pip python3-dev python3-setuptools htop vim build-essential gcc-multilib && \
+	./configure --prefix=/usr && \
+	make && \
+	make install		
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+WORKDIR /app
+COPY requirements.txt ./
+
+RUN pip3 install --no-cache -r requirements.txt
+
+COPY requirements.jabba.txt ./
+
+RUN pip3 install --no-cache -r requirements.jabba.txt
+
+EXPOSE 8000
+
+# size does matter ;)
+RUN apt-get clean && rm -rf /deps/ && rm -rf ~/.cache/pip3 && cd /usr/bin && ln -s python3 python
+
+# Rabbitmq server stuff
+ENV PYTHONPATH=/app/lux:/app/bitmex_websocket:/app/hormes:/app/jabba
+
+CMD [ "/bin/bash" ]
